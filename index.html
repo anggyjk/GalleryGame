@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GALLERY.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        :root {
+            --accent-color: rgba(115, 0, 255, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-color: white;
+        }
+        
+        body {
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+        
+        /* Overlay untuk membuat video lebih gelap - dikurangi opacitynya */
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: -1;
+            transition: all 0.5s ease;
+        }
+        
+        /* Header lebih transparan */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Efek saat scroll - lebih transparan */
+        header.scrolled {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        nav ul li {
+            margin: 5px 8px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: inline-block;
+        }
+        
+        nav ul li a:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,0.15);
+        }
+        
+        nav ul li a.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.2);
+            font-weight: bold;
+        }
+        
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex: 1;
+            width: 100%;
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Konten utama lebih transparan */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Text content lebih transparan */
+        .text-content {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .text-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        /* Gallery container */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        /* Game card lebih transparan */
+        .game-card {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .game-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .game-card:hover .game-image {
+            transform: scale(1.05);
+        }
+        
+        .game-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: white;
+            padding: 15px;
+            transform: translateY(0);
+        }
+        
+        .game-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .game-category {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* About Page Styles - lebih transparan */
+        .about-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .about-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .about-section h2 {
+            margin-bottom: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .about-section p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+        
+        /* Style Page Styles */
+        .style-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .style-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .style-card:hover {
+            transform: scale(1.02);
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .theme-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        
+        .layout-preview {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            display: grid;
+            gap: 5px;
+        }
+        
+        .layout-preview > div {
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .style-card:hover .theme-preview,
+        .style-card:hover .layout-preview > div {
+            transform: scale(1.01);
+            opacity: 0.9;
+        }
+        
+        .style-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .style-card p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        .style-select {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .style-select:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        /* Contact Page Styles */
+        .contact-form {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            margin: 0 auto;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .contact-form h2 {
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .submit-btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        /* Footer lebih transparan */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            backdrop-filter: blur(5px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Gallery Page Styles */
+        #gallery {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        #gallery h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        /* Style Page Title */
+        #style h2 {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+        }
+        
+        /* Audio Player Styles */
+        .audio-player {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            max-width: 180px;
+        }
+        
+        .audio-player:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .audio-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .volume-control {
+            width: 70px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .volume-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .audio-info {
+            margin-left: 5px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.8);
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Theme Classes */
+        body.theme-cyber {
+            --accent-color: rgba(0, 255, 245, 0.6);
+        }
+        
+        body.theme-fire {
+            --accent-color: rgba(255, 60, 0, 0.6);
+        }
+        
+        body.theme-default {
+            --accent-color: rgba(115, 0, 255, 0.6);
+        }
+        
+        body.layout-masonry .gallery-container {
+            grid-template-columns: 1fr;
+        }
+        
+        body.layout-minimal .gallery-container {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+        }
+        
+        /* Social contacts grid */
+        .social-contacts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .contact-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .contact-card img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: invert(1);
+        }
+        
+        .contact-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .contact-card a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 12px;
+            display: block;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        /* Tablet and Desktop Styles */
+        @media (min-width: 768px) {
+            header {
+                padding: 30px 50px;
+                flex-direction: row;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            nav ul li {
+                margin-left: 20px;
+            }
+            
+            nav ul li a {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            
+            main {
+                padding: 40px;
+            }
+            
+            .content {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 40px;
+                gap: 40px;
+            }
+            
+            .text-content p {
+                font-size: 20px;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .style-options {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+            
+            .social-contacts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .audio-player {
+                bottom: 20px;
+                right: 20px;
+                padding: 15px;
+                max-width: 250px;
+            }
+            
+            .audio-btn {
+                font-size: 20px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .volume-control {
+                width: 100px;
+            }
+            
+            .audio-info {
+                font-size: 12px;
+                max-width: 150px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .social-contacts {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            body.layout-masonry .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-auto-rows: masonry;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop id="video-bg" class="video-background">
+        <source src="LiveWp.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <div class="video-overlay"></div>
+    
+    <!-- Audio Player -->
+    <div class="audio-player">
+        <div class="audio-controls">
+            <button class="audio-btn" id="playPauseBtn">▶</button>
+            <div class="volume-control">
+                <input type="range" min="0" max="1" step="0.01" value="0.5" class="volume-slider" id="volumeSlider">
+            </div>
+        </div>
+        <div class="audio-info" id="nowPlaying"></div>
+    </div>
+    
+    <header id="main-header">
+        <div class="logo">GALLERY.</div>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link active" data-page="home">HOME</a></li>
+                <li><a href="#" class="nav-link" data-page="about">ABOUT</a></li>
+                <li><a href="#" class="nav-link" data-page="style">STYLE</a></li>
+                <li><a href="#" class="nav-link" data-page="gallery">GALLERY</a></li>
+                <li><a href="#" class="nav-link" data-page="contact">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Home Page -->
+        <div class="page active" id="home">
+            <div class="content">
+                <div class="text-content">
+                    <p>Haii!!! Saya Anggy Bisa Kalian Panggil Anzy atau Anggy Hehe Kali ini aku membuat website tentang game yang pernah aku mainin ENJOYYY</p>
+                    <p>Catatan</p>
+                    <p>"Di balik setiap frame tersembunyi cerita yang menunggu untuk diungkap. Kami menghubungkan jiwa-jiwa kreatif dengan penikmat seni sejati. Temukan keindahan dalam setiap perspektif yang tak terduga."</p>
+                </div>
+                <div class="gallery-container">
+                    <div class="game-card">
+                        <img src="images/Cyber.jpeg" alt="Game 1" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-title">Cyber Adventure</div>
+                            <div class="game-category">Action RPG</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <img src="images/Nfs.jpeg" alt="Game 2" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-title">Need For Speed</div>
+                            <div class="game-category">Adventure Racing</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <img src="images/Forza.jpeg" alt="Game 3" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-title">Forza Horizon 4</div>
+                            <div class="game-category">Racing MultiPlayer Online</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <img src="images/Chess.jpeg" alt="Game 4" class="game-image">
+                        <div class="game-overlay">
+                            <div class="game-title">Chess</div>
+                            <div class="game-category">Puzzle</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Page -->
+        <div class="page" id="about">
+            <div class="about-content">
+                <div class="about-section">
+                    <h2>About GameGallery</h2>
+                    <p>GameGallery is a curated collection of the finest digital gaming experiences. We showcase a diverse range of games from indie developers to AAA studios, all in one beautiful, easy-to-navigate platform.</p>
+                </div>
+                
+                <div class="about-section">
+                    <h2>Our Mission</h2>
+                    <p>To connect gamers with exceptional gaming experiences and provide developers with a platform to showcase their creations to a passionate audience.</p>
+                </div>
+                
+                <div class="about-section">
+                    <h2>The Team</h2>
+                    <p>We're a small team of gaming enthusiasts, designers, and developers who believe in the power of games to inspire, entertain, and bring people together.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Style Page -->
+        <div class="page" id="style">
+            <h2>Customize Your Experience</h2>
+            <div class="style-options">
+                <!-- Color Themes -->
+                <div class="style-card" data-theme="default">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, rgba(115,0,255,0.3) 0%, rgba(255,0,191,0.3) 100%);"></div>
+                    <h3>Purple Mist</h3>
+                    <p>Default theme matching your video</p>
+                    <button class="style-select" data-theme="default">Apply</button>
+                </div>
+                
+                <div class="style-card" data-theme="cyber">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, rgba(0,255,245,0.3) 0%, rgba(0,15,255,0.3) 100%);"></div>
+                    <h3>Cyber Neon</h3>
+                    <p>Electric blue cyberpunk vibe</p>
+                    <button class="style-select" data-theme="cyber">Apply</button>
+                </div>
+                
+                <div class="style-card" data-theme="fire">
+                    <div class="theme-preview" style="background: linear-gradient(135deg, rgba(255,60,0,0.3) 0%, rgba(255,180,0,0.3) 100%);"></div>
+                    <h3>Dragon Fire</h3>
+                    <p>Warm tones matching your dragon</p>
+                    <button class="style-select" data-theme="fire">Apply</button>
+                </div>
+                
+                <!-- Layout Options -->
+                <div class="style-card" data-layout="grid">
+                    <div class="layout-preview" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; height: 100px;">
+                        <div style="background: rgba(255,255,255,0.2);"></div>
+                        <div style="background: rgba(255,255,255,0.2);"></div>
+                        <div style="background: rgba(255,255,255,0.2);"></div>
+                        <div style="background: rgba(255,255,255,0.2);"></div>
+                    </div>
+                    <h3>Grid Layout</h3>
+                    <p>Classic symmetrical display</p>
+                    <button class="style-select" data-layout="grid">Select</button>
+                </div>
+                
+                <div class="style-card" data-layout="masonry">
+                    <div class="layout-preview" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; height: 100px;">
+                        <div style="background: rgba(255,255,255,0.2); grid-row: span 2;"></div>
+                        <div style="background: rgba(255,255,255,0.2);"></div>
+                        <div style="background: rgba(255,255,255,0.2); grid-column: span 2;"></div>
+                    </div>
+                    <h3>Masonry</h3>
+                    <p>Dynamic Pinterest-style</p>
+                    <button class="style-select" data-layout="masonry">Select</button>
+                </div>
+                
+                <div class="style-card" data-layout="minimal">
+                    <div class="layout-preview" style="background: rgba(255,255,255,0.1); height: 100px; display: flex; justify-content: center; align-items: center;">
+                        <div style="width: 80%; height: 20px; background: rgba(255,255,255,0.3);"></div>
+                    </div>
+                    <h3>Minimalist</h3>
+                    <p>Clean single-column focus</p>
+                    <button class="style-select" data-layout="minimal">Select</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gallery Page -->
+        <div class="page" id="gallery">
+            <h2>Full Game Gallery</h2>
+            <div class="gallery-container">
+                <div class="game-card">
+                    <img src="images/GodOfwar.jpeg" alt="Adventure" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">God Of War Ragnarok</div>
+                        <div class="game-category">Action-Adventure</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/GenshinImpact.jpeg" alt="RPG" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Genshin Impact</div>
+                        <div class="game-category">Action-RPG</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/MortalKombat11.jpeg" alt="Mortal Kombat 11" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Mortal Kombat 11</div>
+                        <div class="game-category">Triple A MultiPlayer</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Nightmare.jpeg" alt="Nightmare" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Nightmare</div>
+                        <div class="game-category">Horror</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Naruto.jpeg" alt="Naruto Strom 4" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Naruto Strom 4 Ultimate Ninja</div>
+                        <div class="game-category">MultiPlayer</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Valorant.jpeg" alt="Valorant" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Valorant</div>
+                        <div class="game-category">Online</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/GtaV.jpeg" alt="GTA V" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">GTA V</div>
+                        <div class="game-category">Triple A MultiPlayer</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Wukong.jpeg" alt="Black Myth Wukong" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Black Myth Wukong</div>
+                        <div class="game-category">Triple A Adventure</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Codm.jpeg" alt="CODM Mobile" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">Call Of Dutty</div>
+                        <div class="game-category">Online</div>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <img src="images/Pubg.jpeg" alt="PUBG MOBILE" class="game-image">
+                    <div class="game-overlay">
+                        <div class="game-title">PUBG</div>
+                        <div class="game-category">Online</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Page -->
+        <div class="page" id="contact">
+            <div class="contact-form">
+                <h2>Contact Developer</h2>
+                
+                <div class="social-contacts">
+                    <!-- GitHub -->
+                    <div class="contact-card">
+                        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+                        <h3>GitHub</h3>
+                        <a href="https://github.com/anggyjk" target="_blank">Github</a>
+                    </div>
+                    
+                    <!-- Twitter/X -->
+                    <div class="contact-card">
+                        <img src="https://abs.twimg.com/favicons/twitter.3.ico" alt="Twitter">
+                        <h3>Twitter/X</h3>
+                        <a href="https://twitter.com/AnggyK67847" target="_blank">Twitter</a>
+                    </div>
+                    
+                    <!-- Instagram -->
+                    <div class="contact-card">
+                        <img src="https://www.instagram.com/static/images/ico/favicon-192.png/68d99ba29cc8.png" alt="Instagram">
+                        <h3>Instagram</h3>
+                        <a href="https://instagram.com/zyknwn_" target="_blank">zyknwn_</a>
+                    </div>
+                    
+                    <!-- Discord -->
+                    <div class="contact-card">
+                        <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord">
+                        <h3>Discord</h3>
+                        <div>anzyy2604_22446</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; color: rgba(255,255,255,0.7); font-size: 14px;">
+                    Feel free to reach out through any of these platforms
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        &copy; 2025 GALLERY. All rights reserved.
+    </footer>
+
+    <!-- Audio Element (hidden) -->
+    <audio id="backgroundMusic" loop>
+        <source src="Maroon5.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        // Navigation between pages
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            const header = document.getElementById('main-header');
+            
+            // Audio player elements
+            const audioPlayer = document.getElementById('backgroundMusic');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const nowPlaying = document.getElementById('nowPlaying');
+            
+            // Initialize first page as active
+            showPage('home');
+            
+            // Load saved preferences
+            loadPreferences();
+            
+            // Set initial volume
+            audioPlayer.volume = volumeSlider.value;
+            
+            // Play/Pause button functionality
+            playPauseBtn.addEventListener('click', function() {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseBtn.textContent = '❚❚';
+                    nowPlaying.textContent = 'Maroon 5';
+                } else {
+                    audioPlayer.pause();
+                    playPauseBtn.textContent = '▶';
+                    nowPlaying.textContent = 'Paused';
+                }
+            });
+            
+            // Volume control
+            volumeSlider.addEventListener('input', function() {
+                audioPlayer.volume = this.value;
+                localStorage.setItem('volume', this.value);
+            });
+            
+            // Theme selection
+            document.querySelectorAll('[data-theme]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    document.body.className = '';
+                    document.body.classList.add(`theme-${theme}`);
+                    localStorage.setItem('selectedTheme', theme);
+                    
+                    // Update video background based on theme
+                    updateVideoBackground(theme);
+                });
+            });
+            
+            // Layout selection
+            document.querySelectorAll('[data-layout]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const layout = this.dataset.layout;
+                    document.body.className = document.body.className.replace(/\blayout-\S+/g, '');
+                    document.body.classList.add(`layout-${layout}`);
+                    localStorage.setItem('selectedLayout', layout);
+                });
+            });
+            
+            // Try to autoplay music (may be blocked by browser)
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Autoplay was prevented, show play button
+                    playPauseBtn.textContent = '▶';
+                    nowPlaying.textContent = 'Click to play';
+                }).then(() => {
+                    // Autoplay started successfully
+                    playPauseBtn.textContent = '❚❚';
+                    nowPlaying.textContent = 'DJ Laksmana Laut x Pretty Girl';
+                });
+            }
+            
+            // Add scroll event for header effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+            
+            // Add click event to all navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    
+                    // Update active nav link
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Show selected page
+                    showPage(pageId);
+                });
+            });
+            
+            // Contact form submission
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Thank you for your message! We will get back to you soon.');
+                    this.reset();
+                });
+            }
+            
+            // Function to show selected page
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (page.id === pageId) {
+                        setTimeout(() => {
+                            page.classList.add('active');
+                        }, 10);
+                    }
+                });
+                
+                // Scroll to top when changing pages
+                window.scrollTo(0, 0);
+            }
+            
+            // Animation for game cards
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach((card, index) => {
+                card.style.transitionDelay = `${index * 0.1}s`;
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 500 + (index * 100));
+            });
+            
+            // Fallback for browsers that don't support video autoplay
+            const videoBg = document.getElementById('video-bg');
+            videoBg.play().catch(error => {
+                console.log("Video autoplay prevented, showing fallback image");
+                document.querySelector('.video-background').style.display = 'none';
+                document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')";
+                document.body.style.backgroundSize = "cover";
+                document.body.style.backgroundPosition = "center";
+                document.body.style.backgroundAttachment = "fixed";
+            });
+            
+            // Load user preferences
+            function loadPreferences() {
+                // Load theme
+                const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+                document.body.classList.add(`theme-${savedTheme}`);
+                
+                // Load layout
+                const savedLayout = localStorage.getItem('selectedLayout') || 'grid';
+                document.body.classList.add(`layout-${savedLayout}`);
+                
+                // Load volume
+                const savedVolume = localStorage.getItem('volume');
+                if (savedVolume) {
+                    audioPlayer.volume = savedVolume;
+                    volumeSlider.value = savedVolume;
+                }
+                
+                // Update video based on saved theme
+                updateVideoBackground(savedTheme);
+            }
+            
+            // Update video background based on theme
+            function updateVideoBackground(theme) {
+                const videoBg = document.getElementById('video-bg');
+                const videoOverlay = document.querySelector('.video-overlay');
+                
+                switch(theme) {
+                    case 'cyber':
+                        videoOverlay.style.backgroundColor = 'rgba(0, 10, 20, 0.3)';
+                        break;
+                    case 'fire':
+                        videoOverlay.style.backgroundColor = 'rgba(20, 0, 0, 0.3)';
+                        break;
+                    default:
+                        videoOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
